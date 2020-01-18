@@ -7,9 +7,9 @@ class Server:
     def __init__(self):
         self.ROW_NUM = 6
         self.COL_NUM = 7
-        self.winner = None
+        self.winner = '-'
 
-        PORT = 1212
+        PORT = 1213
 
         self.board = []
         for _ in range(7):
@@ -47,55 +47,85 @@ class Server:
         self.player_a.sendall(b'start')
         self.player_b.sendall(b'start')
 
-
     def game_loop(self):
         current_player = None
 
-        while(not self.winner):
+        while(self.winner == '-'):
 
             if(self.current_turn):
                 current_player = self.player_a
             else:
                 current_player = self.player_b
 
-            current_player.sendall(self.create_package())
-            
-            
+            self.sync_to_clients()
+
             message = (current_player.recv(35).decode('utf-8'))
             player = message[0]
             place = int(message[1])
 
             self.make_move(place, player)
-            # self.check_board()
+            self.check_board()                
 
             self.current_turn = not self.current_turn
 
+        self.sync_to_clients()
         self.player_a.close()
         self.player_b.close()
 
     def make_move(self, place, player):
 
-        print(place)
         for c in range(7):
             if(self.board[c][place] == '-'):
                 self.board[c][place] = player
                 break
 
     def check_board(self):
-        pass
+        for i in range(self.ROW_NUM):
+            for j in range(self.COL_NUM):
+                self.check_spot(i, j)
 
     def check_spot(self, row, col):
-        for i in range(4):
-            
-            if i + row > 0 and i + row <= self.ROW_NUM:
-                pass
+        current = self.board[row][col]
+        if current != '-':
+            for i in range(4):
+                if self.in_board(row + i, col) and current != self.board[row + i][col]:
+                    break
+            else:
+                self.winner = current
 
-    def create_package(self):
+            for i in range(4):
+                if self.in_board(row, col + i) and current != self.board[row][col + i]:
+                    break
+            else:
+                self.winner = current
+
+            for i in range(4):
+                if self.in_board(row + i, col + i) and current != self.board[row][col + i]:
+                    break
+            else:
+                self.winner = current
+
+    def in_board(self, row, col):
+        if row >= 0 and row < self.ROW_NUM:
+            if col >= 0 and col < self.COL_NUM:
+                return True
+
+        return False
+
+    def sync_to_clients(self):
+        print("starting sync")
+
         package = {}
         package['board'] = self.board
+        package['active'] = 'A' if self.current_turn else 'B'
+        package['winner'] = self.winner
 
         message = bytes(json.dumps(package), 'utf-8')
-        return message
+
+        print(sys.getsizeof(message))
+
+        self.player_a.sendall(message)
+        self.player_b.sendall(message)
 
 if __name__ == "__main__":
     Server()

@@ -31,6 +31,7 @@ class Client:
 
             if(self.winner != '-'):
                 self.print_winner()
+                break
 
             if(self.current_player == self.player_id):
                 move = self.get_player_move()
@@ -43,20 +44,22 @@ class Client:
         state = json.loads(state.decode('utf-8'))
         self.current_board = state['board']
         self.current_player = state['active']
+        self.winner = state['winner']
 
 
     def print_winner(self):
         print("\n")
         win = """
-                ⭐⭐⭐⭐⭐⭐⭐
-                ⭐  YOU WON  ⭐
-                ⭐⭐⭐⭐⭐⭐⭐
+⭐⭐⭐⭐⭐⭐⭐
+⭐  YOU WON  ⭐
+⭐⭐⭐⭐⭐⭐⭐
         """
         lose = """
-                  ❌❌❌❌❌❌❌
-                ❌   YOU LOST   ❌
-                  ❌❌❌❌❌❌❌
+  ❌❌❌❌❌❌❌
+❌   YOU LOST   ❌
+  ❌❌❌❌❌❌❌
         """
+
         if(self.winner == self.player_id):
             print(win)
         else:
