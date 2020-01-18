@@ -3,7 +3,7 @@ A simple Connect 4 implementation in Python with web support
 
 View video preview [here](https://giant.gfycat.com/PortlyCraftyDairycow.webm)
 
-![Video Preview](https://giant.gfycat.com/PortlyCraftyDairycow.webm)
+![Video Preview](https://raw.githubusercontent.com/imcauley/Connect4Terminal/master/preview.jpg)
 
 ## Usage
 To start a new game create a server window with the IP and socket.
