@@ -13,7 +13,7 @@ class Server:
 
         self.board = []
         for _ in range(7):
-            self.board.append([0]*7)
+            self.board.append(['-']*7)
 
         self.player_a = None
         self.player_b = None
@@ -51,33 +51,34 @@ class Server:
     def game_loop(self):
         current_player = None
 
-
-
         while(not self.winner):
 
             if(self.current_turn):
-                current_player = a
+                current_player = self.player_a
             else:
-                current_player = b
+                current_player = self.player_b
 
-            place = current_player.recv(8)
+            current_player.sendall(self.create_package())
+            
+            
+            message = (current_player.recv(35).decode('utf-8'))
+            player = message[0]
+            place = int(message[1])
 
-            self.make_move(place)
-            self.check_board()
+            self.make_move(place, player)
+            # self.check_board()
 
             self.current_turn = not self.current_turn
 
-        a.close()
-        b.close()
+        self.player_a.close()
+        self.player_b.close()
 
-    def make_move(self, place):
-        marker = 1
-        if self.current_turn:
-            marker = 2
+    def make_move(self, place, player):
 
+        print(place)
         for c in range(7):
-            if(self.board[place][c] != 0):
-                self.board[place][c] = marker
+            if(self.board[c][place] == '-'):
+                self.board[c][place] = player
                 break
 
     def check_board(self):
@@ -93,7 +94,8 @@ class Server:
         package = {}
         package['board'] = self.board
 
-        return json.dumps(package)
+        message = bytes(json.dumps(package), 'utf-8')
+        return message
 
 if __name__ == "__main__":
     Server()
