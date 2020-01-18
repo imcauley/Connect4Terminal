@@ -10,24 +10,24 @@ class Client:
         print("test")
         try:
             self.sock.connect(('', 1212))
-            print("connected as player a")
+            print("connected")
         except socket.error:
-            print("couldn't connect as player a")
-
-        if not self.sock:
-            try:
-                self.sock.connect(('', 1213))
-            except socket.error:
-                print("couldn't connect to server")
-                exit(0)
+            print("couldn't connect")
+            exit(0)
 
         self.sock.sendall(b'ready')
-
+        self.player_id = self.sock.recv(34)
+        print(self.player_id)
+        self.sock.recv(38)
+        
         self.client_loop()
 
     def client_loop(self):
-        state = self.sock.recv(2048)
-        state = json.loads(state)
+        # state = self.sock.recv(2048)
+        # state = json.loads(state)
+
+        while True:
+            pass
 
 if __name__ == "__main__":
     Client()

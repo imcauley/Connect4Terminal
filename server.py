@@ -7,33 +7,51 @@ class Server:
     def __init__(self):
         self.ROW_NUM = 6
         self.COL_NUM = 7
-
-        PORT_A = 1212
-        PORT_B = 1213
-
         self.winner = None
+
+        PORT = 1212
 
         self.board = []
         for _ in range(7):
             self.board.append([0]*7)
 
-        self.player_a = socket.socket()
-        self.player_a.bind(('', PORT_A))
-        self.player_a.listen(5)
-
-        self.player_b = socket.socket()
-        self.player_b.bind(('', PORT_B))
-        self.player_b.listen(5)
-
+        self.player_a = None
+        self.player_b = None
+        self.socket = socket.socket()
+        self.socket.bind(('', PORT))
+        self.connect_players()
+        
         self.current_turn = False
 
         self.game_loop()
 
+    def connect_players(self):
+        self.socket.listen(5)
+
+        while True:
+            self.player_a, _ = self.socket.accept()
+            message = self.player_a.recv(38)
+            if(message == b'ready'):
+                self.player_a.sendall(b'A')
+                print('player A connected')
+                break
+        
+        while True:
+            self.player_b, _ = self.socket.accept()
+            message = self.player_b.recv(38)
+            if(message == b'ready'):
+                self.player_b.sendall(b'B')
+                break
+
+        print('both players connected')
+        self.player_a.sendall(b'start')
+        self.player_b.sendall(b'start')
+
+
     def game_loop(self):
         current_player = None
 
-        a, _ = self.player_a.accept()
-        b, _ = self.player_b.accept()
+
 
         while(not self.winner):
 
