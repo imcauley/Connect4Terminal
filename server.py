@@ -1,4 +1,6 @@
 import socket
+import json
+import sys
 
 class Server:
 
@@ -61,10 +63,19 @@ class Server:
                 break
 
     def check_board(self):
-        
+        pass
 
     def check_spot(self, row, col):
         for i in range(4):
             
             if i + row > 0 and i + row <= self.ROW_NUM:
-                if 
+                pass
+
+    def create_package(self):
+        package = {}
+        package['board'] = self.board
+
+        return json.dumps(package)
+
+if __name__ == "__main__":
+    Server()
